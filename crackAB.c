@@ -111,6 +111,9 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
     bool Cin_1 = faults[n - 1].Ci & one_[n - 1];
     bool Bdn_1 = faults[n - 1].Bd & one_[n - 1];
 
+    bool An_1 = false;
+    bool Bn_1 = false;
+
     printf(" C%d = %d\n", n, Cn);
     printf("Ci%d = %d\n", n, Cin);
     printf("Bd%d = %d\n", n, Bdn);
@@ -125,7 +128,8 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
       if (Cin ^ Cn ^ Bdn ^ Bdn_1)
       {
         DEBUG
-        ans->A += one_[n - 1];
+        ans->A |= one_[n - 1];
+        An_1 = true;
       }
       ans->A_known[n - 1] = true;
     }
@@ -137,7 +141,8 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
       if (Cin ^ Cn ^ Bdn)
       {
         DEBUG
-        ans->B += one_[n - 1];
+        ans->B |= one_[n - 1];
+        Bn_1 = true;
       }
       ans->B_known[n - 1] = true;
     }
@@ -149,7 +154,8 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
       if (Cin ^ Cn ^ Bdn)
       {
         DEBUG
-        ans->A += one_[n - 1];
+        ans->A |= one_[n - 1];
+        An_1 = true;
       }
       ans->A_known[n - 1] = true;
     }
@@ -161,19 +167,59 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
       if (Cin ^ Cn ^ Bdn ^ Bdn_1)
       {
         DEBUG
-        ans->B += one_[n - 1];
+        ans->B |= one_[n - 1];
+        Bn_1 = true;
       }
       ans->B_known[n - 1] = true;
     }
 
+    bool An_2 = ans->A & one_[n - 2];
+    bool Bn_2 = ans->B & one_[n - 2];
+    bool Cn_2 = C & one_[n - 2];
     if (ans->A_known[n - 1])
     {
       //find Bn-1
+      if (Cn_2)
+      {
+        //cn-1=(an-1)+(bn-1)+(an-2*bn-2)
+        //bn-1=(cn-1)^(an-1)^(an-2*bn-2)
+        if (Cn_1 ^ An_1 ^ (An_2 & Bn_2))
+        {
+          ans->B |= one_[n - 1];
+        }
+      }
+      else
+      {
+        //cn-1=(an-1)+(bn-1)+(an-2*bn-2)+(an-2)+(bn-2)
+        //bn-1=(cn-1)^(an-1)^(an-2*bn-2)^(an-2)^(bn-2)
+        if (Cn_1 ^ An_1 ^ (An_2 & Bn_2) ^ An_2 ^ Bn_2)
+        {
+          ans->B |= one_[n - 1];
+        }
+      }
     }
 
     if (ans->B_known[n - 1])
     {
       //find An-1
+      if (Cn_2)
+      {
+        //cn-1=(an-1)+(bn-1)+(an-2*bn-2)
+        //an-1=(cn-1)^(bn-1)^(an-2*bn-2)
+        if (Cn_1 ^ Bn_1 ^ (An_2 & Bn_2))
+        {
+          ans->B |= one_[n - 1];
+        }
+      }
+      else
+      {
+        //cn-1=(an-1)+(bn-1)+(an-2*bn-2)+(an-2)+(bn-2)
+        //an-1=(cn-1)^(bn-1)^(an-2*bn-2)^(an-2)^(bn-2)
+        if (Cn_1 ^ Bn_1 ^ (An_2 & Bn_2) ^ An_2 ^ Bn_2)
+        {
+          ans->B |= one_[n - 1];
+        }
+      }
     }
   }
 }
