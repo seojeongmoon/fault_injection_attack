@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/sjmoon/Git/fault_injection_attack/crackAB.c
+stdbool.h
+-
+stdio.h
+-
+stdlib.h
+-
+
+/home/sjmoon/Git/fault_injection_attack/main.c
+stdio.h
+-
+stdbool.h
+-
+crackAB.c
+/home/sjmoon/Git/fault_injection_attack/crackAB.c
+
