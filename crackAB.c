@@ -79,20 +79,19 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
     // a0 = c1 ^ ci1 ^ bd1;
     if (c1 ^ ci1 ^ bd1)
     {
-      DEBUG
       ans->A += one_[0];
     }
     ans->A_known[0] = true;
   }
 
-  //c0=a0+b0
-  //bo=c0-a0=c0^a0
+  //bo=c0^a0
   if ((C & one_[0]) ^ (ans->A & one_[0]))
   {
     ans->B += one_[0];
   }
   ans->B_known[0] = true;
 
+  //for a1...n and b1...n
   for (int n = 2; n < BITSIZE; n++)
   {
     if (faults[n - 1].Bd != one_[n - 1])
@@ -101,22 +100,23 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
       exit(EXIT_FAILURE);
     }
 
-    bool Cn = C ^ one_[n];
-    printByteInBit("Cn", C ^ one_[n]);
-    bool Cin = faults[n - 1].Ci ^ one_[n];
-    bool Bdn = faults[n - 1].Bd ^ one_[n];
+    printf("n index %d\n", n);
+    printByteInBit("C", C);
+    bool Cn = C & one_[n];
+    printByteInBit("C & one_[n]", C & one_[n]);
+    bool Cin = faults[n - 1].Ci & one_[n];
+    bool Bdn = faults[n - 1].Bd & one_[n];
 
-    bool Cn_1 = C ^ one_[n - 1];
-    bool Cin_1 = faults[n - 1].Ci ^ one_[n - 1];
-    bool Bdn_1 = faults[n - 1].Bd ^ one_[n - 1];
+    bool Cn_1 = C & one_[n - 1];
+    bool Cin_1 = faults[n - 1].Ci & one_[n - 1];
+    bool Bdn_1 = faults[n - 1].Bd & one_[n - 1];
 
-    printf(" n= %d : \n", n);
     printf(" C%d = %d\n", n, Cn);
     printf("Ci%d = %d\n", n, Cin);
     printf("Bd%d = %d\n", n, Bdn);
-    printf(" C%d = %d\n", n-1, Cn_1);
-    printf("Ci%d = %d\n", n-1, Cin_1);
-    printf("Bd%d = %d\n", n-1, Bdn_1);
+    printf(" C%d = %d\n", n - 1, Cn_1);
+    printf("Ci%d = %d\n", n - 1, Cin_1);
+    printf("Bd%d = %d\n", n - 1, Bdn_1);
 
     //Cn-1 = 0 Cin-1 = 0
     if (!Cn_1 && !Cin_1)
