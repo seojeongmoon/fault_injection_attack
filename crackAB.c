@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define BITSIZE 3
+#define BITSIZE 4
 #define FAULTSIZE BITSIZE - 1
 
 #define DEBUG printf("We are at line number %d in file %s\n", __LINE__, __FILE__);
@@ -197,6 +197,7 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
           ans->B |= one_[n - 1];
         }
       }
+      ans->B_known[n - 1] = true;
     }
 
     if (ans->B_known[n - 1])
@@ -208,7 +209,7 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
         //an-1=(cn-1)^(bn-1)^(an-2*bn-2)
         if (Cn_1 ^ Bn_1 ^ (An_2 & Bn_2))
         {
-          ans->B |= one_[n - 1];
+          ans->A |= one_[n - 1];
         }
       }
       else
@@ -217,9 +218,10 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
         //an-1=(cn-1)^(bn-1)^(an-2*bn-2)^(an-2)^(bn-2)
         if (Cn_1 ^ Bn_1 ^ (An_2 & Bn_2) ^ An_2 ^ Bn_2)
         {
-          ans->B |= one_[n - 1];
+          ans->A |= one_[n - 1];
         }
       }
+      ans->A_known[n - 1] = true;
     }
   }
 }

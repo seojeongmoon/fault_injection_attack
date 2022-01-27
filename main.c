@@ -4,8 +4,8 @@
 
 int main(void)
 {
-	unsigned int A = 5;
-	unsigned int B = 6;
+	unsigned int A = 9;
+	unsigned int B = 12;
 	unsigned int C = A + B;
 
 	printByteInBit("A", A);
