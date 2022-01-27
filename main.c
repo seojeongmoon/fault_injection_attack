@@ -4,8 +4,8 @@
 
 int main(void)
 {
-	unsigned int A = 9;
-	unsigned int B = 12;
+	unsigned int A = 1 + 2 ^ 5 + 2 ^ 3;
+	unsigned int B = 2 ^ 4 + 2 ^ 5;
 	unsigned int C = A + B;
 
 	printByteInBit("A", A);
@@ -27,32 +27,16 @@ int main(void)
 	}
 
 	findAB(&ans, C, faults);
-	printf("check A value\n");
-
-	for (int i = BITSIZE - 1; i >= 0; i--)
-	{
-		if (!ans.A_known[i] || !ans.B_known[i])
-		{
-			//fprintf(stderr, "not all digits of A and B are known\n");
-			//exit(EXIT_FAILURE);
-		}
-		printf(ans.A_known[i] ? "1" : "0");
-	}
-	printf("\n");
-
-	for (int i = BITSIZE - 1; i >= 0; i--)
-	{
-		if (!ans.A_known[i] || !ans.B_known[i])
-		{
-			//fprintf(stderr, "not all digits of A and B are known\n");
-			//exit(EXIT_FAILURE);
-		}
-		printf(ans.B_known[i] ? "1" : "0");
-	}
+	printf("check known value\n");
+	printKnown(ans);
 	printf("\n");
 
 	printByteInBit("A", ans.A);
 	printByteInBit("B", ans.B);
 
+	if (A == ans.A && B == ans.B)
+	{
+		printf("\n***************************\nCongratulations!!! \nTEST CORRECT!\n");
+	}
 	return 0;
 }

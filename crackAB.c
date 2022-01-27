@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define BITSIZE 4
+#define BITSIZE 5
 #define FAULTSIZE BITSIZE - 1
 
 #define DEBUG printf("We are at line number %d in file %s\n", __LINE__, __FILE__);
@@ -37,11 +37,28 @@ typedef struct ab_t
   bool B_known[BITSIZE];
 } ab_t;
 
+void printKnown(ab_t ans)
+{
+  printf("Known A: ");
+  for (int i = BITSIZE - 1; i >= 0; i--)
+  {
+    printf(ans.A_known[i] ? "1" : "0");
+  }
+  printf("\n");
+
+  printf("Known B: ");
+  for (int i = BITSIZE - 1; i >= 0; i--)
+  {
+    printf(ans.B_known[i] ? "1" : "0");
+  }
+  printf("\n");
+}
+
 void initAB(ab_t *ab)
 {
   ab->A = 0;
   ab->B = 0;
-  for (int i = 0; i < FAULTSIZE; i++)
+  for (int i = 0; i < BITSIZE; i++)
   {
     ab->A_known[i] = false;
     ab->B_known[i] = false;
@@ -91,6 +108,9 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
   }
   ans->B_known[0] = true;
 
+  printf("\n KNOWN SHOULD BE UP TO index 0\n");
+  printKnown(*ans);
+
   //for a1...n and b1...n
   for (int n = 2; n < BITSIZE; n++)
   {
@@ -101,9 +121,8 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
     }
 
     printf("n index %d\n", n);
-    printByteInBit("C", C);
+
     bool Cn = C & one_[n];
-    printByteInBit("C & one_[n]", C & one_[n]);
     bool Cin = faults[n - 1].Ci & one_[n];
     bool Bdn = faults[n - 1].Bd & one_[n];
 
@@ -223,5 +242,8 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
       }
       ans->A_known[n - 1] = true;
     }
+
+    printf("\n KNOWN SHOULD BE UP TO index %d\n", n - 1);
+    printKnown(*ans);
   }
 }
