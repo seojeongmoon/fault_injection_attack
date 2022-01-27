@@ -4,13 +4,13 @@
 
 int main(void)
 {
-	unsigned int A = 1 + 2 ^ 5 + 2 ^ 3;
-	unsigned int B = 2 ^ 4 + 2 ^ 5;
+	unsigned int A = 2 + (1 << 3) + (1 << 4) + (1 << 5) + (1 << 6) + (1 << 7) + (1 << 29) + (1 << 30) + (1 << 31);
+	unsigned int B = 1 + 2 + (1 << 13) + (1 << 14) + (1 << 23) + (1 << 26) + (1 << 27) + (1 << 29);
 	unsigned int C = A + B;
 
-	printByteInBit("A", A);
-	printByteInBit("B", B);
-	printByteInBit("C", C);
+	printBytesInBit("A", A);
+	printBytesInBit("B", B);
+	printBytesInBit("C", C);
 	printf("\n");
 
 	ab_t ans;
@@ -31,10 +31,26 @@ int main(void)
 	printKnown(ans);
 	printf("\n");
 
-	printByteInBit("A", ans.A);
-	printByteInBit("B", ans.B);
+	unsigned int one_[32];
 
-	if (A == ans.A && B == ans.B)
+	for (int i = 0; i < 32; ++i)
+	{
+		one_[i] = 1;
+		one_[i] = one_[i] << i;
+	}
+
+
+	printf("A  = %d\n", A);
+	printf("A' = %d\n", ans.A);
+	printf("B  = %d\n", B);
+	printf("B' = %d\n", ans.B);
+
+	printBytesInBit("A ", A);
+	printBytesInBit("A'", ans.A);
+	printBytesInBit("B ", B);
+	printBytesInBit("B'", ans.B);
+
+	if(checkEqual(A, B, ans))
 	{
 		printf("\n***************************\nCongratulations!!! \nTEST CORRECT!\n");
 	}

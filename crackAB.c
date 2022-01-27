@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define BITSIZE 5
+#define BITSIZE 32
 #define FAULTSIZE BITSIZE - 1
 
 #define DEBUG printf("We are at line number %d in file %s\n", __LINE__, __FILE__);
@@ -18,11 +18,50 @@
       (byte & 0x02 ? '1' : '0'), \
       (byte & 0x01 ? '1' : '0')
 
+#define BYTE_TO_BINARY_PATTERN32 "%c%c%c%c%c%c%c%c %c%c%c%c%c%c%c%c %c%c%c%c%c%c%c%c %c%c%c%c%c%c%c%c"
+#define BYTE_TO_BINARY32(bytes)         \
+  (bytes & 0x80000000 ? '1' : '0'),     \
+      (bytes & 0x40000000 ? '1' : '0'), \
+      (bytes & 0x20000000 ? '1' : '0'), \
+      (bytes & 0x10000000 ? '1' : '0'), \
+      (bytes & 0x8000000 ? '1' : '0'),  \
+      (bytes & 0x4000000 ? '1' : '0'),  \
+      (bytes & 0x2000000 ? '1' : '0'),  \
+      (bytes & 0x1000000 ? '1' : '0'),  \
+      (bytes & 0x800000 ? '1' : '0'),   \
+      (bytes & 0x400000 ? '1' : '0'),   \
+      (bytes & 0x200000 ? '1' : '0'),   \
+      (bytes & 0x100000 ? '1' : '0'),   \
+      (bytes & 0x80000 ? '1' : '0'),    \
+      (bytes & 0x40000 ? '1' : '0'),    \
+      (bytes & 0x20000 ? '1' : '0'),    \
+      (bytes & 0x10000 ? '1' : '0'),    \
+      (bytes & 0x8000 ? '1' : '0'),     \
+      (bytes & 0x4000 ? '1' : '0'),     \
+      (bytes & 0x2000 ? '1' : '0'),     \
+      (bytes & 0x1000 ? '1' : '0'),     \
+      (bytes & 0x800 ? '1' : '0'),      \
+      (bytes & 0x400 ? '1' : '0'),      \
+      (bytes & 0x200 ? '1' : '0'),      \
+      (bytes & 0x100 ? '1' : '0'),      \
+      (bytes & 0x80 ? '1' : '0'),       \
+      (bytes & 0x40 ? '1' : '0'),       \
+      (bytes & 0x20 ? '1' : '0'),       \
+      (bytes & 0x10 ? '1' : '0'),       \
+      (bytes & 0x08 ? '1' : '0'),       \
+      (bytes & 0x04 ? '1' : '0'),       \
+      (bytes & 0x02 ? '1' : '0'),       \
+      (bytes & 0x01 ? '1' : '0')
+
 void printByteInBit(char *var, unsigned int byte)
 {
   printf("%s: " BYTE_TO_BINARY_PATTERN "\n", var, BYTE_TO_BINARY(byte));
 }
 
+void printBytesInBit(char *var, unsigned int byte)
+{
+  printf("%s: " BYTE_TO_BINARY_PATTERN32 "\n", var, BYTE_TO_BINARY32(byte));
+}
 typedef struct fault_t
 {
   unsigned int Bd;
@@ -245,5 +284,47 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
 
     printf("\n KNOWN SHOULD BE UP TO index %d\n", n - 1);
     printKnown(*ans);
+  }
+}
+
+bool checkEqual(unsigned int A, unsigned int B, ab_t ans)
+{
+
+  unsigned int one_[32];
+
+  for (int i = 0; i < 32; ++i)
+  {
+    one_[i] = 1;
+    one_[i] = one_[i] << i;
+  }
+
+  if (A & one_[FAULTSIZE])
+  {
+    A = A ^ one_[FAULTSIZE];
+  }
+  if (B & one_[FAULTSIZE])
+  {
+    B = B ^ one_[FAULTSIZE];
+  }
+
+  for (int i = 0; i < BITSIZE - 1; i++)
+  {
+    if (A & one_[i] ^ ans.A & one_[i])
+    {
+      printf("A and A' are not equal on index %d \n  a = %d, a'= %d\n", i, A & one_[i], ans.A & one_[i]);
+      return false;
+    }
+    if (B & one_[i] ^ ans.B & one_[i])
+    {
+      printf("B and B' are not equal on index %d \n  a = %d, a'=%d\n", i, B & one_[i], ans.B & one_[i]);
+    }
+  }
+  if (!!(A == ans.A) && !!(B == ans.B))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
   }
 }
