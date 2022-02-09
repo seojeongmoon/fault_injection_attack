@@ -5,8 +5,6 @@
 #define BITSIZE 32
 #define FAULTSIZE BITSIZE - 1
 
-#define DEBUG printf("We are at line number %d in file %s\n", __LINE__, __FILE__);
-
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte)     \
   (byte & 0x80 ? '1' : '0'),     \
@@ -93,6 +91,16 @@ void printKnown(ab_t ans)
   printf("\n");
 }
 
+void printfault(fault_t *faults)
+{
+  for (int i = 0; i < FAULTSIZE; i++)
+  {
+    printf("fault index %d\n", i);
+    printByteInBit("Bd", faults[i].Bd);
+    printByteInBit("Ci", faults[i].Ci);
+  }
+}
+
 void initAB(ab_t *ab)
 {
   ab->A = 0;
@@ -147,9 +155,6 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
   }
   ans->B_known[0] = true;
 
-  printf("\n KNOWN SHOULD BE UP TO index 0\n");
-  printKnown(*ans);
-
   //for a1...n and b1...n
   for (int n = 2; n < BITSIZE; n++)
   {
@@ -158,8 +163,6 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
       fprintf(stderr, "Bd[n-1] must be one and no other digits\n");
       exit(EXIT_FAILURE);
     }
-
-    printf("n index %d\n", n);
 
     bool Cn = C & one_[n];
     bool Cin = faults[n - 1].Ci & one_[n];
@@ -172,20 +175,12 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
     bool An_1 = false;
     bool Bn_1 = false;
 
-    printf(" C%d = %d\n", n, Cn);
-    printf("Ci%d = %d\n", n, Cin);
-    printf("Bd%d = %d\n", n, Bdn);
-    printf(" C%d = %d\n", n - 1, Cn_1);
-    printf("Ci%d = %d\n", n - 1, Cin_1);
-    printf("Bd%d = %d\n", n - 1, Bdn_1);
-
     //Cn-1 = 0 Cin-1 = 0
     if (!Cn_1 && !Cin_1)
     {
       //an-1=cin^cn^bdn^bdn-1
       if (Cin ^ Cn ^ Bdn ^ Bdn_1)
       {
-        DEBUG
         ans->A |= one_[n - 1];
         An_1 = true;
       }
@@ -198,7 +193,6 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
       //bn-1=cin^cn^bdn
       if (Cin ^ Cn ^ Bdn)
       {
-        DEBUG
         ans->B |= one_[n - 1];
         Bn_1 = true;
       }
@@ -211,7 +205,6 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
       //an-1=cin^cn^bdn
       if (Cin ^ Cn ^ Bdn)
       {
-        DEBUG
         ans->A |= one_[n - 1];
         An_1 = true;
       }
@@ -224,7 +217,6 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
       //bn-1=cin^cn^bdn^bdn-1
       if (Cin ^ Cn ^ Bdn ^ Bdn_1)
       {
-        DEBUG
         ans->B |= one_[n - 1];
         Bn_1 = true;
       }
@@ -239,7 +231,6 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
       //find Bn-1
       if (Cn_2)
       {
-        //cn-1=(an-1)+(bn-1)+(an-2*bn-2)
         //bn-1=(cn-1)^(an-1)^(an-2*bn-2)
         if (Cn_1 ^ An_1 ^ (An_2 & Bn_2))
         {
@@ -248,7 +239,6 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
       }
       else
       {
-        //cn-1=(an-1)+(bn-1)+(an-2*bn-2)+(an-2)+(bn-2)
         //bn-1=(cn-1)^(an-1)^(an-2*bn-2)^(an-2)^(bn-2)
         if (Cn_1 ^ An_1 ^ (An_2 & Bn_2) ^ An_2 ^ Bn_2)
         {
@@ -263,7 +253,6 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
       //find An-1
       if (Cn_2)
       {
-        //cn-1=(an-1)+(bn-1)+(an-2*bn-2)
         //an-1=(cn-1)^(bn-1)^(an-2*bn-2)
         if (Cn_1 ^ Bn_1 ^ (An_2 & Bn_2))
         {
@@ -272,7 +261,6 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
       }
       else
       {
-        //cn-1=(an-1)+(bn-1)+(an-2*bn-2)+(an-2)+(bn-2)
         //an-1=(cn-1)^(bn-1)^(an-2*bn-2)^(an-2)^(bn-2)
         if (Cn_1 ^ Bn_1 ^ (An_2 & Bn_2) ^ An_2 ^ Bn_2)
         {
@@ -281,9 +269,6 @@ void findAB(ab_t *ans, const unsigned int C, const fault_t *faults)
       }
       ans->A_known[n - 1] = true;
     }
-
-    printf("\n KNOWN SHOULD BE UP TO index %d\n", n - 1);
-    printKnown(*ans);
   }
 }
 
